@@ -17,6 +17,24 @@ app.get("/data",(req,res)=>{
     res.status(201).json(data)
 })
 
+app.get("/todayprice",(req,res)=>{
+    fetch().then((res)=>{
+        
+    })
+})
+
+app.get("/prediction",(req,res)=>{
+    let data = {
+        stock_name:"abc",
+        today_price:{
+            open_price:10000,
+            close_price:20000
+        }
+        
+    }
+    res.status(201).json(data)
+
+})
 // app.get("/api",(req,res)=>{
 //     res.send('helllo worrrrrpd')
 // })
