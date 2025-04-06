@@ -72,8 +72,6 @@ const StockForecaster = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 text-white">
-      {/* {stockName}
-      {stockPredictionArray} */}
       <StockSearch
         stockSymbol={stockSymbol}
         setStockSymbol={setStockSymbol}

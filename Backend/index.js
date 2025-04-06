@@ -11,12 +11,8 @@ app.listen(PORT, () => {
     console.log("server is on!!!!")
 })
 
-
-
-
-
 app.get("/todayprice/:symbol", async (req, res) => {
-    const symbol = req.params.symbol + ".BO"; // e.g., RELIANCE => RELIANCE.BO
+    const symbol = req.params.symbol + ".BO"; 
 
     try {
         const quote = await yahooFinance.quote(symbol);
