@@ -3,14 +3,15 @@ import StockSearch from "./StockSearch";
 import StockDetails from "./StockDetails";
 import StockPrediction from "./StockPrediction";
 // import StockChart from "./StockChart";
+
 import {
   stockSuggestions,
   getMockCurrentData,
   getMockPredictedData,
   getMockHistoricalData,
-} from "./mockStockData"; // Import mock data
+} from "./mockStockData";
 
-import axios from "axios"
+import axios from "axios";
 
 const StockForecaster = () => {
   const [stockSymbol, setStockSymbol] = useState("");
@@ -21,34 +22,34 @@ const StockForecaster = () => {
   const [historicalData, setHistoricalData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [stockName,setStockName] = useState("");
-  const [stockPredictionArray,setStockPredictionArray] = useState([])
+  // const [stockName, setStockName] = useState("");
+  // const [stockPredictionArray, setStockPredictionArray] = useState([]);
 
-  useEffect(()=>{
-    axios.get('http://localhost:5000/data')
-    .then(response => {
-  
-      console.log(response.data);
-      setStockName(response.data.stock_name);
-      setStockPredictionArray(response.data.prediction_array);
-    })
-    .catch(error => {
-      console.error('Error fetching data', error);
-    });
-  },[])
+  // Uncomment if you want prediction to load on mount
+  // useEffect(() => {
+  //   axios.get("http://localhost:4000/data")
+  //     .then((response) => {
+  //       console.log(response.data);
+  //       setStockName(response.data.stock_name);
+  //       setStockPredictionArray(response.data.prediction_array);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching data", error);
+  //     });
+  // }, []);
 
   const fetchCurrentData = async () => {
-
-    
+    if (!stockSymbol) return;
     setLoading(true);
     try {
-      const response = await fetch(`/api/current/${stockSymbol}`);
+      const response = await fetch(`http://localhost:4000/todayprice/${stockSymbol}`);
       if (!response.ok) throw new Error("API error");
       const data = await response.json();
+      console.log("Current Stock Data:", data);
       setCurrentData(data);
     } catch (error) {
       console.error("API failed, using mock data:", error);
-      setCurrentData(getMockCurrentData(stockSymbol)); // Use mock data
+      setCurrentData(getMockCurrentData(stockSymbol));
     }
     setLoading(false);
   };
@@ -60,10 +61,10 @@ const StockForecaster = () => {
       if (!response.ok) throw new Error("API error");
       const data = await response.json();
       setPredictedData(data);
-      setHistoricalData(getMockHistoricalData()); // Keep historical data
+      setHistoricalData(getMockHistoricalData());
     } catch (error) {
       console.error("API failed, using mock data:", error);
-      setPredictedData(getMockPredictedData(stockSymbol)); // Use mock data
+      setPredictedData(getMockPredictedData(stockSymbol));
       setHistoricalData(getMockHistoricalData());
     }
     setLoading(false);
@@ -71,8 +72,8 @@ const StockForecaster = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 text-white">
-      {stockName}
-      {stockPredictionArray}
+      {/* {stockName}
+      {stockPredictionArray} */}
       <StockSearch
         stockSymbol={stockSymbol}
         setStockSymbol={setStockSymbol}
@@ -83,23 +84,22 @@ const StockForecaster = () => {
           setShowSuggestions(false);
         }}
       />
-      <div>
-        
 
       <StockDetails
         stockSymbol={stockSymbol}
+        setStockSymbol={setStockSymbol}
         currentData={currentData}
         fetchCurrentData={fetchCurrentData}
         loading={loading}
       />
-      </div>
+
       <div className="mt-11 mb-11">
-      <StockPrediction
-        stockSymbol={stockSymbol}
-        predictedData={predictedData}
-        predictNextDay={predictNextDay}
-        loading={loading}
-      />
+        <StockPrediction
+          stockSymbol={stockSymbol}
+          predictedData={predictedData}
+          predictNextDay={predictNextDay}
+          loading={loading}
+        />
       </div>
 
       {/* <StockChart historicalData={historicalData} /> */}

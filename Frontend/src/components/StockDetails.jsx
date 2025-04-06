@@ -5,16 +5,20 @@ const StockDetails = ({ stockSymbol, setStockSymbol, currentData, fetchCurrentDa
     <div className="bg-gray-800 p-6 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Get Today's Stock Price</h2>
       <div className="mb-4">
-        <label className="block text-gray-400 mb-2">Enter Stock Symbol:</label>
+        <label className="block text-gray-400 mb-2">Selected Stock Symbol:</label>
         <div className="flex">
           <input
             type="text"
             className="bg-gray-700 text-white p-2 rounded-l-lg w-full focus:outline-0"
-            placeholder="e.g., RELIANCE.BSE"
+            placeholder="e.g., RELIANCE"
             value={stockSymbol}
-            onChange={(e) => setStockSymbol(e.target.value)}  readOnly 
+            onChange={(e) => setStockSymbol(e.target.value)}
+            readOnly
           />
-          <button className="text-green-400 border-2 border-green-400 hover:bg-green-400 hover:text-gray-700 px-4 py-2 rounded-r-lg" onClick={fetchCurrentData}>
+          <button
+            className="text-green-400 border-2 border-green-400 hover:bg-green-400 hover:text-gray-700 px-4 py-2 rounded-r-lg"
+            onClick={fetchCurrentData}
+          >
             Today's Price
           </button>
         </div>
@@ -24,16 +28,20 @@ const StockDetails = ({ stockSymbol, setStockSymbol, currentData, fetchCurrentDa
 
       {currentData && !loading && (
         <div className="bg-gray-700 p-4 rounded-lg">
-          <h3 className="font-bold text-lg">{currentData.symbol}</h3>
-          <p className="text-gray-400">{currentData.date}</p>
+          <h3 className="font-bold text-xl">{currentData.name}</h3>
+          <p className="text-gray-400 mb-2">Symbol: {stockSymbol}.BO</p>
           <div className="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <p className="text-gray-400">Market Price</p>
+              <p className="text-lg font-bold text-green-300">₹{currentData.price.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-gray-400">Previous Close</p>
+              <p className="text-lg font-bold">₹{currentData.close.toFixed(2)}</p>
+            </div>
             <div>
               <p className="text-gray-400">Open</p>
               <p className="text-lg font-bold">₹{currentData.open.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-gray-400">Close</p>
-              <p className="text-lg font-bold">₹{currentData.close.toFixed(2)}</p>
             </div>
             <div>
               <p className="text-gray-400">High</p>
