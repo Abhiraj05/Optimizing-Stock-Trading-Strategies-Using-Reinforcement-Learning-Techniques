@@ -13,7 +13,7 @@ const StockDetails = ({ stockSymbol, setStockSymbol, currentData, fetchCurrentDa
             placeholder="e.g., RELIANCE"
             value={stockSymbol}
             onChange={(e) => setStockSymbol(e.target.value)}
-            readOnly
+           readOnly
           />
           <button
             className="text-green-400 border-2 border-green-400 hover:bg-green-400 hover:text-gray-700 px-4 py-2 rounded-r-lg"
@@ -29,7 +29,7 @@ const StockDetails = ({ stockSymbol, setStockSymbol, currentData, fetchCurrentDa
       {currentData && !loading && (
         <div className="bg-gray-700 p-4 rounded-lg">
           <h3 className="font-bold text-xl">{currentData.name}</h3>
-          <p className="text-gray-400 mb-2">Symbol: {stockSymbol}.BO</p>
+          <p className="text-gray-400 mb-2 uppercase">Symbol: {stockSymbol}.BO</p>
           <div className="grid grid-cols-2 gap-4 mt-4">
             <div>
               <p className="text-gray-400">Market Price</p>
