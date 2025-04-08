@@ -11,7 +11,6 @@ import {
   getMockHistoricalData,
 } from "./mockStockData";
 
-import axios from "axios";
 
 const StockForecaster = () => {
   const [stockSymbol, setStockSymbol] = useState("");
