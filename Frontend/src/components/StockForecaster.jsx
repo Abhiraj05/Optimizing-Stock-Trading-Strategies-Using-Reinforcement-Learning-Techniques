@@ -22,21 +22,7 @@ const StockForecaster = () => {
   const [historicalData, setHistoricalData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // const [stockName, setStockName] = useState("");
-  // const [stockPredictionArray, setStockPredictionArray] = useState([]);
 
-  // Uncomment if you want prediction to load on mount
-  // useEffect(() => {
-  //   axios.get("http://localhost:4000/data")
-  //     .then((response) => {
-  //       console.log(response.data);
-  //       setStockName(response.data.stock_name);
-  //       setStockPredictionArray(response.data.prediction_array);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching data", error);
-  //     });
-  // }, []);
 
   const fetchCurrentData = async () => {
     if (!stockSymbol) return;
@@ -57,11 +43,18 @@ const StockForecaster = () => {
   const predictNextDay = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/predict/${stockSymbol}`);
+      const response = await fetch(`http://localhost:4000/prediction/${stockSymbol}`);
       if (!response.ok) throw new Error("API error");
       const data = await response.json();
-      setPredictedData(data);
-      setHistoricalData(getMockHistoricalData());
+      console.log("Prediction API Response:", data);
+      setPredictedData({
+        symbol: data.stock_name,
+        predictedOpen: data.today_price.open_price,
+        predictedClose: data.today_price.close_price,
+        date: new Date().toLocaleDateString(),
+      });
+  
+      setHistoricalData(getMockHistoricalData()); 
     } catch (error) {
       console.error("API failed, using mock data:", error);
       setPredictedData(getMockPredictedData(stockSymbol));
@@ -69,7 +62,6 @@ const StockForecaster = () => {
     }
     setLoading(false);
   };
-
   return (
     <div className="max-w-4xl mx-auto p-6 text-white">
       <StockSearch

@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const yahooFinance = require('yahoo-finance2').default;
 const app = express()
+const axios =require("axios")
 app.use(cors());
 const PORT = process.env.PORT || 4000
 
@@ -36,15 +37,14 @@ app.get("/todayprice/:symbol", async (req, res) => {
 
 
 
-app.get("/prediction", (req, res) => {
-    let data = {
-        stock_name: "abc",
-        today_price: {
-            open_price: 10000,
-            close_price: 20000
-        }
+app.get("/prediction/:symbol", async (req, res) => {
+    const symbol = req.params.symbol + ".BO";
 
+    try {
+        const response = await axios.get(`http://localhost:5000/predict/${symbol}.BO`); 
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error("Error contacting Flask server:", error.message);
+        res.status(500).json({ error: "Failed to get prediction from Flask API" });
     }
-    res.status(201).json(data)
-
-})
+});
