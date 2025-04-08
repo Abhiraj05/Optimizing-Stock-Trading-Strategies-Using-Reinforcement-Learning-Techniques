@@ -9,11 +9,11 @@ const StockDetails = ({ stockSymbol, setStockSymbol, currentData, fetchCurrentDa
         <div className="flex">
           <input
             type="text"
-            className="bg-gray-700 text-white p-2 rounded-l-lg w-full focus:outline-0"
+            className="bg-gray-700 text-white p-2 rounded-l-lg w-full focus:outline-0 pl-4"
             placeholder="e.g., RELIANCE"
             value={stockSymbol}
             onChange={(e) => setStockSymbol(e.target.value)}
-           readOnly
+           
           />
           <button
             className="text-green-400 border-2 border-green-400 hover:bg-green-400 hover:text-gray-700 px-4 py-2 rounded-r-lg"
