@@ -7,7 +7,7 @@ def predict_stock(symbol):
         "stock_name": "RELIANCE.BO",
         "today_price": {
             "open_price": 2500.45,
-            "close_price": 2600.23
+            "close_price": 26600.23
         }
     }
 
