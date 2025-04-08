@@ -1,51 +1,44 @@
-import React, { useEffect, useState } from "react";
-import StockSearch from "./StockSearch";
+import React, { useState } from "react";
 import StockDetails from "./StockDetails";
 import StockPrediction from "./StockPrediction";
 // import StockChart from "./StockChart";
 
 import {
-  stockSuggestions,
   getMockCurrentData,
   getMockPredictedData,
   getMockHistoricalData,
 } from "./mockStockData";
 
 const StockForecaster = () => {
-  const [stockSymbol, setStockSymbol] = useState("");
-  // const [suggestions, setSuggestions] = useState(stockSuggestions);
-  // const [showSuggestions, setShowSuggestions] = useState(false);
+  const [topInput, setTopInput] = useState("");
+  const [bottomInput, setBottomInput] = useState("");
   const [currentData, setCurrentData] = useState(null);
   const [predictedData, setPredictedData] = useState(null);
   const [historicalData, setHistoricalData] = useState([]);
-  // const [loading, setLoading] = useState(false);
   const [loadingCurrent, setLoadingCurrent] = useState(false);
   const [loadingPrediction, setLoadingPrediction] = useState(false);
 
   const fetchCurrentData = async () => {
-    if (!stockSymbol) return;
+    if (!topInput) return;
     setLoadingCurrent(true);
     try {
-      const response = await fetch(
-        `http://localhost:4000/todayprice/${stockSymbol}`
-      );
+      const response = await fetch(`http://localhost:4000/todayprice/${topInput}`);
       if (!response.ok) throw new Error("API error");
       const data = await response.json();
       console.log("Current Stock Data:", data);
       setCurrentData(data);
     } catch (error) {
       console.error("API failed, using mock data:", error);
-      setCurrentData(getMockCurrentData(stockSymbol));
+      setCurrentData(getMockCurrentData(topInput));
     }
     setLoadingCurrent(false);
   };
 
   const predictNextDay = async () => {
+    if (!bottomInput) return;
     setLoadingPrediction(true);
     try {
-      const response = await fetch(
-        `http://localhost:4000/prediction/${stockSymbol}`
-      );
+      const response = await fetch(`http://localhost:4000/prediction/${bottomInput}`);
       if (!response.ok) throw new Error("API error");
       const data = await response.json();
       console.log("Prediction API Response:", data);
@@ -55,11 +48,10 @@ const StockForecaster = () => {
         predictedClose: data.today_price.close_price,
         date: new Date().toLocaleDateString(),
       });
-
       setHistoricalData(getMockHistoricalData());
     } catch (error) {
       console.error("API failed, using mock data:", error);
-      setPredictedData(getMockPredictedData(stockSymbol));
+      setPredictedData(getMockPredictedData(bottomInput));
       setHistoricalData(getMockHistoricalData());
     }
     setLoadingPrediction(false);
@@ -67,20 +59,10 @@ const StockForecaster = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 text-white">
-      {/* <StockSearch
-        stockSymbol={stockSymbol}
-        setStockSymbol={setStockSymbol}
-        suggestions={suggestions}
-        showSuggestions={showSuggestions}
-        handleSelectStock={(stock) => {
-          setStockSymbol(stock.symbol);
-          setShowSuggestions(false);
-        }} */}
-      {/* /> */}
       <div className="mt-11 mb-11">
         <StockDetails
-          // stockSymbol={stockSymbol}
-          setStockSymbol={setStockSymbol}
+          stockSymbol={topInput}
+          setStockSymbol={setTopInput}
           currentData={currentData}
           fetchCurrentData={fetchCurrentData}
           loading={loadingCurrent}
@@ -88,13 +70,13 @@ const StockForecaster = () => {
       </div>
       <div className="mt-11 mb-11">
         <StockPrediction
-          // stockSymbol={stockSymbol}
+          stockSymbol={bottomInput}
+          setStockSymbol={setBottomInput}
           predictedData={predictedData}
           predictNextDay={predictNextDay}
           loading={loadingPrediction}
         />
       </div>
-
       {/* <StockChart historicalData={historicalData} /> */}
     </div>
   );

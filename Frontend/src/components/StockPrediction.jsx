@@ -12,7 +12,7 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
             className="bg-gray-700 text-white p-2 rounded-l-lg w-full focus:outline-none pl-4"
             placeholder="e.g., RELIANCE.BSE"
             value={stockSymbol}
-            onChange={(e) => setStockSymbol(e.target.value)} 
+            onChange={(e) => setStockSymbol(e.target.value)}  
           />
           <button className="text-green-400 border-2 border-green-400 hover:bg-green-400 hover:text-gray-700 px-4 py-2 rounded-r-lg" onClick={predictNextDay}>
             Predict
