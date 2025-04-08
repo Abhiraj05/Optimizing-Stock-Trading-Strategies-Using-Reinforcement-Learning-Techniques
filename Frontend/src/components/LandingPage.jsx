@@ -19,7 +19,7 @@ export function LandingPage() {
       </div>
       <div className="relative z-10">
         <div className="px-4 py-20 sm:px-6 lg:px-8">
-          <div className="flex justify-center items-center">
+          <div className="lg:flex lg:justify-center lg:items-center">
             <div className="">
               <h1 className="text-4xl font-bold tracking-tight text-white sm:text-7xl mb-6">
                 <p className="first:text-green-400">Trade Smarter with</p>
