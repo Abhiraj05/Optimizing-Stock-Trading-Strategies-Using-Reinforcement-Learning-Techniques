@@ -22,7 +22,9 @@ const StockForecaster = () => {
     if (!topInput) return;
     setLoadingCurrent(true);
     try {
-      const response = await fetch(`http://localhost:4000/todayprice/${topInput}`);
+      const response = await fetch(
+        `http://localhost:4000/todayprice/${topInput}`
+      );
       if (!response.ok) throw new Error("API error");
       const data = await response.json();
       console.log("Current Stock Data:", data);
@@ -37,25 +39,43 @@ const StockForecaster = () => {
   const predictNextDay = async () => {
     if (!bottomInput) return;
     setLoadingPrediction(true);
+  
     try {
       const response = await fetch(`http://localhost:4000/prediction/${bottomInput}`);
       if (!response.ok) throw new Error("API error");
+  
       const data = await response.json();
       console.log("Prediction API Response:", data);
+  
+      const nextDate = new Date();
+      nextDate.setDate(nextDate.getDate() + 1);
+      const formattedDate = nextDate.toLocaleDateString();
+  
       setPredictedData({
-        symbol: data.stock_name,
-        predictedOpen: data.today_price.open_price,
-        predictedClose: data.today_price.close_price,
-        date: new Date().toLocaleDateString(),
+        company: data.company,
+        stock_name: data.stock_name,
+        today_price: {
+          open_price: data.today_price.open_price,
+          close_price: data.today_price.close_price,
+        },
+        predictedOpen: data.predictedOpen,
+        predictedClose: data.predictedClose,
+        sentiment_score: data.sentiment_score,
+        sentiment_breakdown: data.sentiment_breakdown,
+        news: data.news,
+        date: formattedDate
       });
+  
       setHistoricalData(getMockHistoricalData());
     } catch (error) {
       console.error("API failed, using mock data:", error);
       setPredictedData(getMockPredictedData(bottomInput));
       setHistoricalData(getMockHistoricalData());
     }
+  
     setLoadingPrediction(false);
   };
+  
 
   return (
     <div className="max-w-4xl mx-auto p-6 text-white">
