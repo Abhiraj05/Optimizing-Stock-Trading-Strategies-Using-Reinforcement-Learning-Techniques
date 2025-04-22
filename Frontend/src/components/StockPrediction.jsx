@@ -5,8 +5,6 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
   return (
     <div className="bg-gray-800 p-6 rounded-lg text-white">
       <h2 className="text-xl font-semibold mb-4">Predict Next Day's Stock Price</h2>
-
-      {/* Input Field */}
       <div className="mb-4">
         <label className="block text-gray-400 mb-2">Enter Stock Symbol:</label>
         <div className="flex">
@@ -26,10 +24,9 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
         </div>
       </div>
 
-      {/* Loading State */}
       {loading && <p className="text-center my-4">Loading...</p>}
 
-      {/* Prediction Results */}
+    
       {predictedData && !loading && (
         <div className="bg-gray-700 p-4 rounded-lg mt-4 space-y-4">
           <div>
@@ -38,7 +35,7 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            {/* Today's Open Price (Displayed as Predicted Open) */}
+          
             <div>
               <p className="text-gray-400">Predicted Open</p>
               <p className="text-lg font-bold text-green-400">
@@ -46,7 +43,7 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
               </p>
             </div>
 
-            {/* Today's Close Price (Displayed as Predicted Close) */}
+           
             <div>
               <p className="text-gray-400">Predicted Close</p>
               <p className="text-lg font-bold text-green-400">

@@ -7,7 +7,6 @@ export const Navbar = () => (
           <img className="w-[68px] h-[68px]" src={logo} alt="" />
             </div>
           <div className="space-x-4">
-            {/* <a href="#" className="hover:text-blue-200">Dashboard</a> */}
             <a href="#" className="hover:text-blue-200 ">About</a>
           </div>
         </div>

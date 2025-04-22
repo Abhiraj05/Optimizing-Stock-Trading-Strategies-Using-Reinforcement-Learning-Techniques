@@ -11,25 +11,25 @@ import {
 } from "recharts";
 
 const StockChart = ({ historicalData, predictedNextDay }) => {
-  // Map historical data to the format required for the chart
+ 
   const chartData = historicalData.map((item) => ({
     date: item.date,
     open: item.open,
     close: item.close,
   }));
 
-  // If predicted data exists, add it as the last data point
+
   if (predictedNextDay) {
     chartData.push({
-      date: "Predicted Value for Next Day",  // Change X-axis label to 'Predicted Value for Next Day'
+      date: "Predicted Value for Next Day",  
       open: predictedNextDay.open_price,
       close: predictedNextDay.close_price,
     });
   }
 
-  // Function to format the Y-axis price labels as ₹ (currency)
+
   const formatYAxisPrice = (value) => {
-    return `₹${value.toLocaleString()}`; // Formats the value with ₹ and adds commas for thousands
+    return `₹${value.toLocaleString()}`; 
   };
 
   return (
@@ -39,13 +39,13 @@ const StockChart = ({ historicalData, predictedNextDay }) => {
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#444" />
           <XAxis dataKey="date" stroke="#ccc" />
-          <YAxis stroke="#ccc" tickFormatter={formatYAxisPrice} /> {/* Custom Y-Axis Formatting */}
-          <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} /> {/* Format Tooltip */}
+          <YAxis stroke="#ccc" tickFormatter={formatYAxisPrice} /> 
+          <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} /> 
           <Legend />
           <Line type="monotone" dataKey="open" stroke="#8884d8" name="Open Price" />
           <Line type="monotone" dataKey="close" stroke="#82ca9d" name="Close Price" />
           
-          {/* Add predicted lines for next day's open and close values */}
+        
           {predictedNextDay && (
             <>
               <Line
@@ -53,14 +53,14 @@ const StockChart = ({ historicalData, predictedNextDay }) => {
                 dataKey="open"
                 stroke="#FF5733"
                 name="Predicted Open"
-                dot={{ stroke: '#FF5733', strokeWidth: 2, r: 4 }} // Adding a distinct color and dot for predicted open
+                dot={{ stroke: '#FF5733', strokeWidth: 2, r: 4 }} 
               />
               <Line
                 type="monotone"
                 dataKey="close"
                 stroke="#FF6F61"
                 name="Predicted Close"
-                dot={{ stroke: '#FF6F61', strokeWidth: 2, r: 4 }} // Adding a distinct color and dot for predicted close
+                dot={{ stroke: '#FF6F61', strokeWidth: 2, r: 4 }} 
               />
             </>
           )}
