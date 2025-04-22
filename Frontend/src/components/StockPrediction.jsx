@@ -78,7 +78,7 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
                 <li key={index} className="border-l-4 pl-3 border-gray-600">
                   <p className="font-medium">{article.title}</p>
                   <p className="text-sm text-gray-400">
-                    Source: {article.source} | Published: {new Date(article.published_at).toLocaleString()}<br />
+                    Source: {article.source}<br />
                     Sentiment:{" "}
                     <span
                       className={
