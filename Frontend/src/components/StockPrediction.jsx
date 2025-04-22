@@ -42,7 +42,7 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
             <div>
               <p className="text-gray-400">Predicted Open</p>
               <p className="text-lg font-bold text-green-400">
-                ₹{predictedData?.today_price?.open_price?.toFixed(2) ?? "N/A"}
+                ₹{predictedData?.next_day_price?.open_price?.toFixed(2) ?? "N/A"}
               </p>
             </div>
 
@@ -50,7 +50,7 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
             <div>
               <p className="text-gray-400">Predicted Close</p>
               <p className="text-lg font-bold text-green-400">
-                ₹{predictedData?.today_price?.close_price?.toFixed(2) ?? "N/A"}
+                ₹{predictedData?.next_day_price?.close_price?.toFixed(2) ?? "N/A"}
               </p>
             </div>
           </div>
