@@ -1,4 +1,3 @@
-
 import os
 from flask import Flask, jsonify
 import numpy as np
@@ -249,3 +248,6 @@ def predict_stock(symbol):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+

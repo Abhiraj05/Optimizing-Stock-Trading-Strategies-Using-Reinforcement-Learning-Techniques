@@ -79,3 +79,4 @@ const StockChart = ({ historicalData, predictedNextDay }) => {
 };
 
 export default StockChart;
+
