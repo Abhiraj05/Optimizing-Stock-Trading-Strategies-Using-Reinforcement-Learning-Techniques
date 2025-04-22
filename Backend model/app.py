@@ -21,7 +21,7 @@ tcs_meta = joblib.load(r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\B
 reliance_model = load_model(r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\open_close_reliance.keras")
 reliance_meta = joblib.load(r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\reliance.pkl")
 
-MARKETAUX_API_KEY = "7wQyV3iXT79MtqY2e8YqrIX9qQAcZabyfHRTa5va"
+MARKETAUX_API_KEY = "Kbjbn7okaHAwEbCk9GuKX5rLKHf3mf1Hhg9y9BXf"
 
 # --- Helper Functions ---
 def prepare_features(df):
