@@ -3,7 +3,6 @@ import StockDetails from "./StockDetails";
 import StockPrediction from "./StockPrediction";
 import StockChart from "./StockChart";
 
-
 const StockForecaster = () => {
   const [topInput, setTopInput] = useState("");
   const [bottomInput, setBottomInput] = useState("");
@@ -17,9 +16,7 @@ const StockForecaster = () => {
     if (!topInput) return;
     setLoadingCurrent(true);
     try {
-      const response = await fetch(
-        `http://localhost:4000/todayprice/${topInput}`
-      );
+      const response = await fetch(`http://localhost:4000/todayprice/${topInput}`);
       if (!response.ok) throw new Error("API error");
       const data = await response.json();
       console.log("Current Stock Data:", data);
@@ -36,9 +33,7 @@ const StockForecaster = () => {
     setLoadingPrediction(true);
 
     try {
-      const response = await fetch(
-        `http://localhost:4000/prediction/${bottomInput}`
-      );
+      const response = await fetch(`http://localhost:4000/prediction/${bottomInput}`);
       if (!response.ok) throw new Error("API error");
 
       const data = await response.json();
@@ -54,16 +49,15 @@ const StockForecaster = () => {
         next_day_price: {
           open_price: data.next_day_price.open_price,
           close_price: data.next_day_price.close_price,
+          high_price: data.next_day_price.high_price,
+          low_price: data.next_day_price.low_price,
         },
-        predictedOpen: data.predictedOpen,
-        predictedClose: data.predictedClose,
         sentiment_score: data.sentiment_score,
         sentiment_breakdown: data.sentiment_breakdown,
         news: data.news,
         date: formattedDate,
       });
 
-      // Update historical data based on API response
       setHistoricalData(data.historical_prices);
     } catch (error) {
       console.error("API failed, using mock data:", error);
@@ -103,8 +97,3 @@ const StockForecaster = () => {
 };
 
 export default StockForecaster;
-
-
-
-
-

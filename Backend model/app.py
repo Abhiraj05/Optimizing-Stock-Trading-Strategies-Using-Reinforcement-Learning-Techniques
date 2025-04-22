@@ -14,11 +14,11 @@ from dateutil import parser
 app = Flask(__name__)
 
 # --- Load Models and Metadata ---
-tcs_model = load_model(r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\open_close_tcs.keras")
-tcs_meta = joblib.load(r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\tcs.pkl")
+tcs_model = load_model(r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\open_close_high_low_tcs.keras")
+tcs_meta = joblib.load(r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\tcs_extended.pkl")
 
-reliance_model = load_model(r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\open_close_reliance.keras")
-reliance_meta = joblib.load(r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\reliance.pkl")
+reliance_model = load_model(r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\open_close_high_low_reliance.keras")
+reliance_meta = joblib.load(r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\reliance_extended.pkl")
 
 MARKETAUX_API_KEY = "Kbjbn7okaHAwEbCk9GuKX5rLKHf3mf1Hhg9y9BXf"
 
@@ -54,7 +54,6 @@ def fetch_bse_news(company_name, ticker):
         articles = []
         for article in data['data']:
             source = article.get('source', 'Unknown source')
-
             if any(s in source.lower() for s in trusted_sources):
                 articles.append({
                     'title': article['title'],
@@ -63,7 +62,6 @@ def fetch_bse_news(company_name, ticker):
                     'sentiment': float(article.get('sentiment_score', 0))
                 })
         return articles
-
     except requests.exceptions.RequestException as e:
         print(f"Error fetching news: {e}")
         return []
@@ -87,22 +85,20 @@ def analyze_sentiment(articles):
         try:
             vader_score = analyzer.polarity_scores(article['title'])['compound']
             api_score = article.get('sentiment', 0)
-            # Higher weight to VADER for BSE context
             article['combined_sentiment'] = 0.7 * vader_score + 0.3 * api_score
         except Exception as e:
             print(f"Error in sentiment analysis: {e}")
             article['combined_sentiment'] = 0.0
 
     if articles:
-        # Apply time decay (more recent news has more impact)
-        latest_date = max(parser.isoparse(a['published_at']) for a in articles)  # Use dateutil.parser
+        latest_date = max(parser.isoparse(a['published_at']) for a in articles)
         total_weighted = 0
         total_weight = 0
 
         for article in articles:
-            article_date = parser.isoparse(article['published_at'])  # Use dateutil.parser
+            article_date = parser.isoparse(article['published_at'])
             hours_old = (latest_date - article_date).total_seconds() / 3600
-            weight = max(0.5, 1 - (hours_old / 48))  # Linear decay over 48 hours
+            weight = max(0.5, 1 - (hours_old / 48))
             total_weighted += article['combined_sentiment'] * weight
             total_weight += weight
 
@@ -111,9 +107,7 @@ def analyze_sentiment(articles):
         return {'score': 0.0}
 
 def calculate_adjustment(sentiment_score, last_close, open_price):
-    """Sentiment-based adjustment for predicted stock price."""
     base_multiplier = 1.3
-    # Determine the adjustment magnitude based on sentiment
     if sentiment_score > 0.7:
         adjustment = 0.06 * base_multiplier
     elif sentiment_score > 0.5:
@@ -128,7 +122,6 @@ def calculate_adjustment(sentiment_score, last_close, open_price):
         adjustment = -0.03 * base_multiplier
     else:
         adjustment = 0.0
-    # Reduce adjustment based on recent volatility
     recent_volatility = max(last_close * 0.01, open_price * 0.01)
     return adjustment * (1 - min(recent_volatility, 0.6))
 
@@ -152,6 +145,7 @@ def predict_stock(symbol):
     }
     if symbol not in company_map:
         return jsonify({"error": "Model not available for this stock."}), 404
+
     company_data = company_map[symbol]
     company_name = company_data["name"]
     model = company_data["model"]
@@ -160,7 +154,12 @@ def predict_stock(symbol):
     scaler = meta['scaler']
     features = meta['features']
     LOOKBACK = meta['lookback']
-    target_cols = [features.index("Open"), features.index("Close")]
+    target_cols = [
+        features.index("Open"),
+        features.index("Close"),
+        features.index("High"),
+        features.index("Low")
+    ]
 
     today = datetime.now()
     yesterday = today - timedelta(days=1)
@@ -174,16 +173,13 @@ def predict_stock(symbol):
         scaled_input = scaler.transform(df[features])
         X_today = np.array([scaled_input[-LOOKBACK:]])
 
-        # Fetch the last close and open prices
         last_close = float(yf.Ticker(symbol).info.get("previousClose", df['Close'].iloc[-1]))
         open_price = float(yf.Ticker(symbol).info.get("open", df['Open'].iloc[-1]))
 
-        # --- News + Sentiment ---
         articles = fetch_bse_news(company_name, symbol)
         sentiment_analysis = analyze_sentiment(articles)
         sentiment_score = sentiment_analysis['score']
 
-        # Sentiment classification & breakdown
         news_list = []
         sentiment_counts = {"positive": 0, "negative": 0, "neutral": 0}
         for article in articles:
@@ -203,31 +199,34 @@ def predict_stock(symbol):
                 "sentiment": category
             })
 
-        # --- Predict and Adjust ---
         prediction_scaled = model.predict(X_today, verbose=0)
         dummy_input = np.zeros((1, len(features)))
-        dummy_input[0, target_cols[0]] = prediction_scaled[0][0]
-        dummy_input[0, target_cols[1]] = prediction_scaled[0][1]
+        for i, idx in enumerate(target_cols):
+            dummy_input[0, idx] = prediction_scaled[0][i]
         actual_prediction = scaler.inverse_transform(dummy_input)[0]
 
-        predicted_open = float(actual_prediction[target_cols[0]])
-        predicted_close = float(actual_prediction[target_cols[1]])
+        predicted_open = float(actual_prediction[features.index("Open")])
+        predicted_close = float(actual_prediction[features.index("Close")])
+        predicted_high = float(actual_prediction[features.index("High")])
+        predicted_low = float(actual_prediction[features.index("Low")])
 
-        # Calculate adjustments based on sentiment, previous close, and open price
         adjustment = calculate_adjustment(sentiment_score, last_close, open_price)
 
-        # Apply the adjustment to both open and close prices
         adjusted_open = predicted_open * (1 + adjustment)
         adjusted_close = predicted_close * (1 + adjustment)
+        adjusted_high = predicted_high * (1 + adjustment)
+        adjusted_low = predicted_low * (1 + adjustment)
 
-        # --- Fetch Last 10 Days Historical Prices ---
         historical_prices = []
         for idx, row in df.tail(10).iterrows():
-            historical_prices.append({
-                "date": str(idx.date()),  # Converts Timestamp to YYYY-MM-DD string
-                "open": float(round(row['Open'], 2)),
-                "close": float(round(row['Close'], 2))
+           historical_prices.append({
+            "date": str(idx.date()),
+            "open": float(round(row['Open'], 2)),
+            "close": float(round(row['Close'], 2)),
+            "high": float(round(row['High'], 2)),
+            "low": float(round(row['Low'], 2))
             })
+
 
         result = {
             "stock_name": symbol,
@@ -238,16 +237,17 @@ def predict_stock(symbol):
             "historical_prices": historical_prices,
             "next_day_price": {
                 "open_price": round(adjusted_open, 2),
-                "close_price": round(adjusted_close, 2)
+                "close_price": round(adjusted_close, 2),
+                "high_price": round(adjusted_high, 2),
+                "low_price": round(adjusted_low, 2)
             }
         }
 
         return jsonify(result)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# --- Run the Flask app ---
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-

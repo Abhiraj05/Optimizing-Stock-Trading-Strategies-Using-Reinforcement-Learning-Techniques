@@ -11,25 +11,27 @@ import {
 } from "recharts";
 
 const StockChart = ({ historicalData, predictedNextDay }) => {
- 
+
   const chartData = historicalData.map((item) => ({
     date: item.date,
     open: item.open,
     close: item.close,
+    high: item.high,
+    low: item.low,
   }));
-
 
   if (predictedNextDay) {
     chartData.push({
-      date: "Predicted Value for Next Day",  
+      date: "Next Day (Predicted)",
       open: predictedNextDay.open_price,
       close: predictedNextDay.close_price,
+      high: predictedNextDay.high_price,
+      low: predictedNextDay.low_price,
     });
   }
 
-
   const formatYAxisPrice = (value) => {
-    return `₹${value.toLocaleString()}`; 
+    return `₹${value.toLocaleString()}`;
   };
 
   return (
@@ -39,13 +41,17 @@ const StockChart = ({ historicalData, predictedNextDay }) => {
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#444" />
           <XAxis dataKey="date" stroke="#ccc" />
-          <YAxis stroke="#ccc" tickFormatter={formatYAxisPrice} /> 
-          <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} /> 
+          <YAxis stroke="#ccc" tickFormatter={formatYAxisPrice} />
+          <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
           <Legend />
+
+          {/* Historical & Predicted Lines */}
           <Line type="monotone" dataKey="open" stroke="#8884d8" name="Open Price" />
           <Line type="monotone" dataKey="close" stroke="#82ca9d" name="Close Price" />
-          
-        
+          <Line type="monotone" dataKey="high" stroke="#ffc658" name="High Price" />
+          <Line type="monotone" dataKey="low" stroke="#ff7300" name="Low Price" />
+
+          {/* Optional: Predicted dots to highlight */}
           {predictedNextDay && (
             <>
               <Line
@@ -53,14 +59,14 @@ const StockChart = ({ historicalData, predictedNextDay }) => {
                 dataKey="open"
                 stroke="#FF5733"
                 name="Predicted Open"
-                dot={{ stroke: '#FF5733', strokeWidth: 2, r: 4 }} 
+                dot={{ stroke: '#FF5733', strokeWidth: 2, r: 5 }}
               />
               <Line
                 type="monotone"
                 dataKey="close"
                 stroke="#FF6F61"
                 name="Predicted Close"
-                dot={{ stroke: '#FF6F61', strokeWidth: 2, r: 4 }} 
+                dot={{ stroke: '#FF6F61', strokeWidth: 2, r: 5 }}
               />
             </>
           )}
@@ -72,6 +78,8 @@ const StockChart = ({ historicalData, predictedNextDay }) => {
           <p><strong>Predicted Values:</strong></p>
           <p>Open: ₹{predictedNextDay.open_price}</p>
           <p>Close: ₹{predictedNextDay.close_price}</p>
+          <p>High: ₹{predictedNextDay.high_price}</p>
+          <p>Low: ₹{predictedNextDay.low_price}</p>
         </div>
       )}
     </div>
@@ -79,4 +87,3 @@ const StockChart = ({ historicalData, predictedNextDay }) => {
 };
 
 export default StockChart;
-
