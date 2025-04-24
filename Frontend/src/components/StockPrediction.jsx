@@ -31,32 +31,32 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
             <h3 className="font-bold text-lg">
               {predictedData.company} ({predictedData.stock_name})
             </h3>
-            <p className="text-gray-400">Prediction Date: {predictedData.date}</p>
+            <p className="text-gray-400">Prediction For: {predictedData.date}</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-gray-400">Open</p>
+              <p className="text-gray-400">Predicted Open</p>
               <p className="text-lg font-bold text-green-400">
                 ₹{predictedData.next_day_price.open_price.toFixed(2)}
               </p>
             </div>
             <div>
-              <p className="text-gray-400">Close</p>
-              <p className="text-lg font-bold text-green-400">
-                ₹{predictedData.next_day_price.close_price.toFixed(2)}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-400">High</p>
+              <p className="text-gray-400">Predicted High</p>
               <p className="text-lg font-bold text-green-400">
                 ₹{predictedData.next_day_price.high_price.toFixed(2)}
               </p>
             </div>
             <div>
-              <p className="text-gray-400">Low</p>
+              <p className="text-gray-400">Predicted Low</p>
               <p className="text-lg font-bold text-green-400">
                 ₹{predictedData.next_day_price.low_price.toFixed(2)}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-400">Predicted Close</p>
+              <p className="text-lg font-bold text-green-400">
+                ₹{predictedData.next_day_price.close_price.toFixed(2)}
               </p>
             </div>
           </div>
