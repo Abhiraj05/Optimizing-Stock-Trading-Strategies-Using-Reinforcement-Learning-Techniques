@@ -39,6 +39,10 @@ iob_model = load_model(
 iob_meta = joblib.load(
     r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\iob_extended.pkl")
 
+wipro_model = load_model(
+    r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\open_close_high_low_wipro.keras")
+wipro_meta = joblib.load(
+    r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\wipro_extended.pkl")
 
 
 MARKETAUX_API_KEY = "Kbjbn7okaHAwEbCk9GuKX5rLKHf3mf1Hhg9y9BXf"
@@ -186,6 +190,11 @@ def predict_stock(symbol):
             "name": "Indian Overseas Bank",
             "model": iob_model,
             "meta": iob_meta
+        },
+        "WIPRO.BO": {
+            "name": "Wipro Limited",
+            "model": wipro_model,
+            "meta": wipro_meta
         }
     }
     if symbol not in company_map:
