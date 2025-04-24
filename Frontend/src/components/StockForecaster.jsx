@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import StockDetails from "./StockDetails";
 import StockPrediction from "./StockPrediction";
 import StockChart from "./StockChart";
+import FadeIn from 'react-fade-in';
 
 const StockForecaster = () => {
   const [topInput, setTopInput] = useState("");
@@ -69,6 +70,7 @@ const StockForecaster = () => {
   };
 
   return (
+    <FadeIn>
     <div className="max-w-4xl mx-auto p-6 text-white">
       <div className="mt-11 mb-11">
         <StockDetails
@@ -93,6 +95,7 @@ const StockForecaster = () => {
         predictedNextDay={predictedData?.next_day_price}
       />
     </div>
+    </FadeIn>
   );
 };
 

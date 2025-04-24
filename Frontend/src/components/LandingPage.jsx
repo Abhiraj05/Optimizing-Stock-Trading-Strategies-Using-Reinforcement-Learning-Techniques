@@ -1,10 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import MySvg from "../assets/vecteezy_green-dollars-and-a-stack-of-gold-coins-a-bag-of-money-in_23743918.png";
+import FadeIn from 'react-fade-in';
 
 export function LandingPage() {
     const navigate = useNavigate();
   return (
+    <FadeIn>
     <div className="min-h-screen relative mt-0">
       <div className="absolute inset-0">
         <div className="absolute inset-0 opacity-20">
@@ -40,5 +42,6 @@ export function LandingPage() {
         </div>
       </div>
     </div>
+    </FadeIn>
   );
 }
