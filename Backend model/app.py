@@ -334,7 +334,7 @@ def fetch_bse_news(company_name, ticker):
     trusted_sources = [
         'economic times', 'business standard', 'moneycontrol', 'livemint', 'financial express', 'bloomberg',
         'reuters', 'mint', 'ndtv', 'hindustan times', 'zeebiz', 'cnbc', 'businesstoday', 'rediff.com',
-        'timesofindia.indiatimes.com', 'economictimes.indiatimes.com', 'thehindubusinessline.com', 'thehindu.com','businesstoday.in','bloombergquint.com','livemint.com','telecom.economictimes.indiatimes.com'
+        'timesofindia.indiatimes.com', 'economictimes.indiatimes.com', 'thehindubusinessline.com', 'thehindu.com', 'businesstoday.in', 'bloombergquint.com', 'livemint.com', 'telecom.economictimes.indiatimes.com'
     ]
     try:
         response = requests.get(url, timeout=30)
@@ -439,33 +439,33 @@ def predict_stock(symbol):
             "name": "Reliance Industries",
             "model": reliance_model,
             "meta": reliance_meta
-        },   
+        },
         "HDFCBANK.BO": {
             "name": "HDFC Bank Limited",
             "model": hdfc_model,
             "meta": hdfc_meta
         },
-          "IRCTC.BO": {
+        "IRCTC.BO": {
             "name": "Indian Railway Catering and To",
             "model": irctc_model,
             "meta": irctc_meta
-        },          
-          "SBIN.BO": {
+        },
+        "SBIN.BO": {
             "name": "State Bank of India",
             "model": sbin_model,
             "meta": sbin_meta
-        }, 
-          "MRF.BO": {
+        },
+        "MRF.BO": {
             "name": "Madras Rubber Factory",
             "model": mrf_model,
             "meta": mrf_meta
         },
-          "INFY.BO": {
+        "INFY.BO": {
             "name": "Infosys Limited",
             "model": infosys_model,
             "meta": infosys_meta
         },
-          "IOB.BO": {
+        "IOB.BO": {
             "name": "Indian Overseas Bank",
             "model": iob_model,
             "meta": iob_meta
