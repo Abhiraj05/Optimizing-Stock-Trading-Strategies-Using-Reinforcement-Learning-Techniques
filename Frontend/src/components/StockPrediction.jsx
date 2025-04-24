@@ -10,7 +10,7 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
           <input
             type="text"
             className="bg-gray-700 text-white p-2 rounded-l-lg w-full focus:outline-none pl-4"
-            placeholder="e.g., TCS.BO"
+            placeholder="e.g., TCS"
             value={stockSymbol}
             onChange={(e) => setStockSymbol(e.target.value)}
           />
