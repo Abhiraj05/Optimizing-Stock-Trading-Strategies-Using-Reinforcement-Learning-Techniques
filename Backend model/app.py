@@ -29,11 +29,6 @@ irctc_model = load_model(
 irctc_meta = joblib.load(
     r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\irctc_extended.pkl")
 
-sbin_model = load_model(
-    r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\open_close_high_low_sbin.keras")
-sbin_meta = joblib.load(
-    r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\sbin_extended.pkl")
-
 infosys_model = load_model(
     r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\open_close_high_low_infosys.keras")
 infosys_meta = joblib.load(
@@ -181,11 +176,6 @@ def predict_stock(symbol):
             "name": "Indian Railway Catering and To",
             "model": irctc_model,
             "meta": irctc_meta
-        },
-        "SBIN.BO": {
-            "name": "State Bank of India",
-            "model": sbin_model,
-            "meta": sbin_meta
         },
         "INFY.BO": {
             "name": "Infosys Limited",
