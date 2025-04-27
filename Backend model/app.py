@@ -70,7 +70,7 @@ def fetch_bse_news(company_name, ticker):
     trusted_sources = [
         'economic times', 'business standard', 'moneycontrol', 'livemint', 'financial express', 'bloomberg',
         'reuters', 'mint', 'ndtv', 'hindustan times', 'zeebiz', 'cnbc', 'businesstoday', 'rediff.com',
-        'timesofindia.indiatimes.com', 'economictimes.indiatimes.com', 'thehindubusinessline.com', 'thehindu.com', 'businesstoday.in', 'bloombergquint.com', 'livemint.com', 'telecom.economictimes.indiatimes.com'
+        'timesofindia.indiatimes.com', 'economictimes.indiatimes.com', 'thehindubusinessline.com', 'thehindu.com', 'businesstoday.in', 'bloombergquint.com', 'livemint.com', 'telecom.economictimes.indiatimes.com','rbi.org.in'
     ]
     try:
         response = requests.get(url, timeout=30)
