@@ -28,7 +28,7 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
       {predictedData && !loading && (
         <div className="bg-gray-700 p-4 rounded-lg mt-4 space-y-4">
           <div>
-            <h3 className="font-bold text-lg">
+            <h3 className="font-bold text-lg uppercase">
               {predictedData.company} ({predictedData.stock_name})
             </h3>
             <p className="text-gray-400">Prediction For: {predictedData.date}</p>

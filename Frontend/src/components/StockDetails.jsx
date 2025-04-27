@@ -28,8 +28,7 @@ const StockDetails = ({ stockSymbol, setStockSymbol, currentData, fetchCurrentDa
 
       {currentData && !loading && (
         <div className="bg-gray-700 p-4 rounded-lg">
-          <h3 className="font-bold text-xl">{currentData.name}</h3>
-          <p className="text-gray-400 mb-2 uppercase">Symbol: {stockSymbol}.BO</p>
+          <h3 className="font-bold text-lg mb-2 uppercase">{currentData.name} ({stockSymbol}.BO)</h3> 
           <div className="grid grid-cols-2 gap-4 mt-4">
             <div>
               <p className="text-gray-400">Market Price</p>
