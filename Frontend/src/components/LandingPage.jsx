@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import MySvg from "../assets/vecteezy_green-dollars-and-a-stack-of-gold-coins-a-bag-of-money-in_23743918.png";
 import FadeIn from 'react-fade-in';
+import { TrendingUp, DollarSign, LineChart } from 'lucide-react';
 
 export function LandingPage() {
     const navigate = useNavigate();
@@ -42,6 +43,34 @@ export function LandingPage() {
         </div>
       </div>
     </div>
+    <div className="py-16 px-4 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+          <div className="bg-white/10 rounded-xl p-6 border-2 border-green-300">
+            <div className="text-blue-400 mb-4">
+              <DollarSign size={32} />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-3">Get Today's Stock Price</h3>
+            <p className="text-gray-300">Access real-time stock prices from global markets.</p>
+          </div>
+
+          <div className="bg-white/10 rounded-xl p-6 border-2 border-green-300">
+            <div className="text-green-300 mb-4">
+              <TrendingUp size={32} />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-3">Predict Next Day's Price</h3>
+            <p className="text-gray-300">predict price movements for better trading.</p>
+          </div>
+
+          <div className="bg-white/10 rounded-xl p-6 border-2 border-green-300">
+            <div className="text-yellow-400 mb-4">
+              <LineChart size={32} />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-3">Stock Price Charts</h3>
+            <p className="text-gray-300">Visualize market trends with comprehensive charts.</p>
+          </div>
+        </div>
+      </div>
+
     </FadeIn>
   );
 }
