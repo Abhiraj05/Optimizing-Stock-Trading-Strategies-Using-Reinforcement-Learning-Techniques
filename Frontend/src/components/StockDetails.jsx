@@ -5,7 +5,7 @@ const StockDetails = ({ stockSymbol, setStockSymbol, currentData, fetchCurrentDa
     <div className="bg-gray-800 p-6 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Get Today's Stock Price</h2>
       <div className="mb-4">
-        <label className="block text-gray-400 mb-2">Selected Stock Symbol:</label>
+        <label className="block text-gray-400 mb-2">Enter Stock Symbol:</label>
         <div className="flex">
           <input
             type="text"
