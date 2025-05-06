@@ -316,7 +316,7 @@ def get_recommendation_explanation(final_action: str, sentiment_score: float) ->
     else:
         sentiment_desc = "neutral market sentiment"
     
-    return f"{base} ({sentiment_desc} with score: {rounded_score})"
+    return f"{base} and {sentiment_desc}."
 
 # Prediction Route
 @app.route('/predict/<symbol>', methods=['GET'])
