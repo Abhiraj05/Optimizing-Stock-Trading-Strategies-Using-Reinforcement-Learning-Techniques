@@ -123,7 +123,7 @@ def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
         'timesofindia.indiatimes.com', 'economictimes.indiatimes.com',
         'thehindubusinessline.com', 'thehindu.com', 'businesstoday.in',
         'bloombergquint.com', 'livemint.com', 'telecom.economictimes.indiatimes.com',
-        'rbi.org.in','inc42.com','seekingalpha.com','gurufocus.com'
+        'rbi.org.in','inc42.com','seekingalpha.com','gurufocus.com','simpletaxindia.net'
     ]
 
     try:
