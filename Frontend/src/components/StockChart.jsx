@@ -1,60 +1,89 @@
 import React from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
-const StockDetails = ({ stockSymbol, setStockSymbol, currentData, fetchCurrentData, loading }) => {
+const StockChart = ({ historicalData, predictedNextDay }) => {
+
+  const chartData = historicalData.map((item) => ({
+    date: item.date,
+    open: item.open,
+    close: item.close,
+    high: item.high,
+    low: item.low,
+  }));
+
+  if (predictedNextDay) {
+    chartData.push({
+      date: "Next Day (Predicted)",
+      open: predictedNextDay.open_price,
+      close: predictedNextDay.close_price,
+      high: predictedNextDay.high_price,
+      low: predictedNextDay.low_price,
+    });
+  }
+
+  const formatYAxisPrice = (value) => {
+    return `₹${value.toLocaleString()}`;
+  };
+
   return (
-    <div className="bg-gray-800 p-6 rounded-lg">
-      <h2 className="text-xl font-semibold mb-4">Get Today's Stock Price</h2>
-      <div className="mb-4">
-        <label className="block text-gray-400 mb-2">Enter Stock Symbol:</label>
-        <div className="flex">
-          <input
-            type="text"
-            className="bg-gray-700 text-white p-2 rounded-l-lg w-full focus:outline-0 pl-4"
-            placeholder="e.g., IOB"
-            value={stockSymbol}
-            onChange={(e) => setStockSymbol(e.target.value)}
-           
-          />
-          <button
-            className="text-green-400 border-2 border-green-400 hover:bg-green-400 hover:text-gray-700 px-4 py-2 rounded-r-lg"
-            onClick={fetchCurrentData}
-          >
-            Today's Price
-          </button>
-        </div>
-      </div>
+    <div className="bg-gray-800 rounded-xl p-6 shadow-lg text-white mt-10">
+      <h2 className="text-xl font-semibold mb-4">Stock Price Chart</h2>
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+          <XAxis dataKey="date" stroke="#ccc" />
+          <YAxis stroke="#ccc" tickFormatter={formatYAxisPrice} />
+          <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+          <Legend />
 
-      {loading && <p className="text-center my-4">Loading...</p>}
+          {/* Historical & Predicted Lines */}
+          <Line type="monotone" dataKey="open" stroke="#8884d8" name="Open Price" />
+          <Line type="monotone" dataKey="close" stroke="#82ca9d" name="Close Price" />
+          <Line type="monotone" dataKey="high" stroke="#ffc658" name="High Price" />
+          <Line type="monotone" dataKey="low" stroke="#ff7300" name="Low Price" />
 
-      {currentData && !loading && (
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <h3 className="font-bold text-lg mb-2 uppercase">{currentData.name} ({stockSymbol}.BO)</h3> 
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <div>
-              <p className="text-gray-400">Market Price</p>
-              <p className="text-lg font-bold text-green-300">₹{currentData.price.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-gray-400">Previous Close</p>
-              <p className="text-lg font-bold">₹{currentData.close.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-gray-400">Open</p>
-              <p className="text-lg font-bold">₹{currentData.open.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-gray-400">High</p>
-              <p className="text-lg font-bold">₹{currentData.high.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-gray-400">Low</p>
-              <p className="text-lg font-bold">₹{currentData.low.toFixed(2)}</p>
-            </div>
-          </div>
+          {/* Optional: Predicted dots to highlight */}
+          {predictedNextDay && (
+            <>
+              <Line
+                type="monotone"
+                dataKey="open"
+                stroke="#FF5733"
+                name="Predicted Open"
+                dot={{ stroke: '#FF5733', strokeWidth: 2, r: 5 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="close"
+                stroke="#FF6F61"
+                name="Predicted Close"
+                dot={{ stroke: '#FF6F61', strokeWidth: 2, r: 5 }}
+              />
+            </>
+          )}
+        </LineChart>
+      </ResponsiveContainer>
+
+      {predictedNextDay && (
+        <div className="mt-4 text-sm text-gray-300">
+          <p><strong>Predicted Values:</strong></p>
+          <p>Open: ₹{predictedNextDay.open_price}</p>
+          <p>Close: ₹{predictedNextDay.close_price}</p>
+          <p>High: ₹{predictedNextDay.high_price}</p>
+          <p>Low: ₹{predictedNextDay.low_price}</p>
         </div>
       )}
     </div>
   );
 };
 
-export default StockDetails;
+export default StockChart;
