@@ -6,16 +6,12 @@ import yfinance as yf
 from datetime import datetime, timedelta
 from tensorflow.keras.models import load_model
 import joblib
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import requests
 from dateutil import parser
 from stable_baselines3 import DQN
 import torch
 import warnings
 from typing import Dict, List, Any, Optional, Union
-
-
-
+import requests
 
 # Suppress warnings
 warnings.filterwarnings('ignore')
@@ -54,14 +50,11 @@ MODEL_PATHS = {
         "model": r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\prediction_models\open_close_high_low_infy.keras",
         "meta": r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\prediction_models\infy_extended.pkl"
     },
-        "WIPRO.BO": {
+    "WIPRO.BO": {
         "model": r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\prediction_models\open_close_high_low_wipro.keras",
         "meta": r"C:\Users\Abhiraj Shilkar\OneDrive\Documents\myproject\Backend model\models\prediction_models\wipro_extended.pkl"
     }
-
-
 }
-
 
 # Load DQN Models
 DQN_MODELS = {
@@ -115,53 +108,10 @@ def prepare_features(df: pd.DataFrame) -> pd.DataFrame:
     df.dropna(inplace=True)
     return df
 
-# def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
-#     """Fetch news articles for the given company"""
-#     print(f"Fetching news for {company_name} ({ticker})...")
-#     url = f"https://api.marketaux.com/v1/news/all?symbols={ticker}&filter_entities=true&language=en&countries=in&api_token={MARKETAUX_API_KEY}"
-    
-#     trusted_sources = [
-#         'economic times', 'business standard', 'moneycontrol', 'livemint', 
-#         'financial express', 'bloomberg', 'reuters', 'mint', 'ndtv', 
-#         'hindustan times', 'zeebiz', 'cnbc', 'businesstoday', 'rediff.com',
-#         'timesofindia.indiatimes.com', 'economictimes.indiatimes.com',
-#         'thehindubusinessline.com', 'thehindu.com', 'businesstoday.in',
-#         'bloombergquint.com', 'livemint.com', 'telecom.economictimes.indiatimes.com',
-#         'rbi.org.in','inc42.com','seekingalpha.com'
-#     ]
-    
-#     try:
-#         response = requests.get(url, timeout=30)
-#         response.raise_for_status()
-#         data = response.json()
-
-#         if 'data' not in data or not data['data']:
-#             print(f"No articles found for {company_name}.")
-#             return []
-            
-#         articles = []
-#         for article in data['data']:
-#             source = article.get('source', 'Unknown source').lower()
-#             if any(trusted_source in source for trusted_source in trusted_sources):
-#                 articles.append({
-#                     'title': article['title'],
-#                     'source': article.get('source', 'Unknown source'),
-#                     'published_at': article['published_at'],
-#                     'sentiment': float(article.get('sentiment_score', 0))
-#                 })
-#         return articles
-        
-#     except requests.exceptions.RequestException as e:
-#         print(f"Error fetching news: {e}")
-#         return []
-#     except Exception as e:
-#         print(f"Error parsing news data: {e}")
-#         return []
-
 
 
 def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
-    """Fetch news articles for the given company within the past 2 days."""
+    """Fetch news articles for the given company within the past 5 days."""
     print(f"Fetching news for {company_name} ({ticker})...")
     
     url = f"https://api.marketaux.com/v1/news/all?symbols={ticker}&filter_entities=true&language=en&countries=in&api_token={MARKETAUX_API_KEY}"
@@ -173,7 +123,7 @@ def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
         'timesofindia.indiatimes.com', 'economictimes.indiatimes.com',
         'thehindubusinessline.com', 'thehindu.com', 'businesstoday.in',
         'bloombergquint.com', 'livemint.com', 'telecom.economictimes.indiatimes.com',
-        'rbi.org.in','inc42.com','seekingalpha.com'
+        'rbi.org.in','inc42.com','seekingalpha.com','gurufocus.com'
     ]
 
     try:
@@ -185,9 +135,9 @@ def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
             print(f"No articles found for {company_name}.")
             return []
 
-        # Time filter: Only include articles from the past 2 days
+        # Time filter: Only include articles from the past 5 days
         now = datetime.utcnow()
-        two_days_ago = now - timedelta(days=5)
+        five_days_ago = now - timedelta(days=5)
 
         articles = []
         for article in data['data']:
@@ -197,16 +147,22 @@ def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
             except ValueError:
                 continue  # Skip if date format is unexpected
 
-            if published_at < two_days_ago:
+            if published_at < five_days_ago:
                 continue  # Skip old articles
 
             source = article.get('source', 'Unknown source').lower()
             if any(trusted_source in source for trusted_source in trusted_sources):
+                # Extract sentiment score from entities if available
+                sentiment_score = 0.0
+                if 'entities' in article and len(article['entities']) > 0:
+                    sentiment_score = float(article['entities'][0].get('sentiment_score', 0.0))
+                
                 articles.append({
                     'title': article['title'],
                     'source': article.get('source', 'Unknown source'),
                     'published_at': published_at_str,
-                    'sentiment': float(article.get('sentiment_score', 0))
+                    'sentiment_score': sentiment_score,
+                    'entities': article.get('entities', [])
                 })
 
         return articles
@@ -219,65 +175,43 @@ def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
         return []
 
 
+
 def analyze_sentiment(articles: List[Dict[str, Any]]) -> Dict[str, float]:
-    """Analyze sentiment scores for news articles"""
-    print(f"Analyzing sentiment for {len(articles)} articles...")
-    analyzer = SentimentIntensityAnalyzer()
-
-    # Financial lexicon enhancements
-    fin_lexicon = {
-        'bullish': 1.5, 'bearish': -1.5, 'rally': 1.3, 'plunge': -1.7,
-        'surge': 1.4, 'slump': -1.4, 'dividend': 0.8, 'bonus': 0.9,
-        'fii': 0.5, 'dii': 0.5, 'qip': 0.3, 'fpo': 0.3
-    }
-    analyzer.lexicon.update(fin_lexicon)
-
-    for article in articles:
-        try:
-            vader_score = analyzer.polarity_scores(article['title'])['compound']
-            api_score = article.get('sentiment', 0)
-            article['combined_sentiment'] = 0.7 * vader_score + 0.3 * api_score
-        except Exception as e:
-            print(f"Error in sentiment analysis: {e}")
-            article['combined_sentiment'] = 0.0
-
+    """Calculate sentiment score using only API sentiment values from last 5 days"""
+    print(f"Calculating sentiment from {len(articles)} API scores...")
+    
     if not articles:
         return {'score': 0.0}
 
-    # Time-weighted sentiment calculation
+    # Time-weighted sentiment calculation (using only API scores)
     latest_date = max(parser.isoparse(a['published_at']) for a in articles)
     total_weighted = 0.0
     total_weight = 0.0
 
     for article in articles:
-        article_date = parser.isoparse(article['published_at'])
-        hours_old = (latest_date - article_date).total_seconds() / 3600
-        weight = max(0.5, 1 - (hours_old / 48))  # Older articles get less weight
-        total_weighted += article['combined_sentiment'] * weight
-        total_weight += weight
+        try:
+            # Use the sentiment_score we already extracted in fetch_bse_news
+            api_score = float(article.get('sentiment_score', 0))
+            article_date = parser.isoparse(article['published_at'])
+            
+            # Calculate time-based weight (more recent = higher weight)
+            hours_old = (latest_date - article_date).total_seconds() / 3600
+            weight = max(0.5, 1 - (hours_old / 120))  # 5 day window (120 hours)
+            
+            total_weighted += api_score * weight
+            total_weight += weight
+            
+            # Store the pure API score for reference
+            article['pure_api_sentiment'] = api_score
+            
+        except Exception as e:
+            print(f"Error processing article sentiment: {e}")
+            continue
 
-    return {'score': total_weighted / total_weight if total_weight > 0 else 0.0}
-
-# def calculate_adjustment(sentiment_score: float, last_close: float, open_price: float) -> float:
-#     """Calculate price adjustment based on sentiment score"""
-#     base_multiplier = 1.3
-#     if sentiment_score > 0.7:
-#         adjustment = 0.06 * base_multiplier
-#     elif sentiment_score > 0.5:
-#         adjustment = 0.04 * base_multiplier
-#     elif sentiment_score > 0.2:
-#         adjustment = 0.02 * base_multiplier
-#     elif sentiment_score < -0.7:
-#         adjustment = -0.07 * base_multiplier
-#     elif sentiment_score < -0.5:
-#         adjustment = -0.05 * base_multiplier
-#     elif sentiment_score < -0.2:
-#         adjustment = -0.03 * base_multiplier
-#     else:
-#         adjustment = 0.0
-        
-#     recent_volatility = max(last_close * 0.01, open_price * 0.01)
-#     return adjustment * (1 - min(recent_volatility, 0.6))
+    return {
+        'score': total_weighted / total_weight if total_weight > 0 else 0.0,
+        'source': 'marketaux_api'
+    }
 
 def calculate_adjustment(sentiment_score: float, last_close: float, open_price: float) -> float:
     """Calculate price adjustment based on sentiment score with more conservative multipliers"""
@@ -304,7 +238,6 @@ def calculate_adjustment(sentiment_score: float, last_close: float, open_price: 
     
     recent_volatility = max(last_close * 0.01, open_price * 0.01)
     return adjustment * (1 - min(recent_volatility, 0.6))
-
 
 def get_dqn_recommendation(
     symbol: str,
@@ -364,35 +297,12 @@ def get_dqn_recommendation(
         print(f"[ERROR] DQN prediction failed for {symbol}: {e}")
         return DEFAULT_ACTION
 
-
-
-
-# def get_recommendation_explanation(final_action: str, sentiment_score: float) -> str:
-#     """Simplified explanation generator"""
-#     explanations = {
-#         "buy": "Agent recommends buying based on positive technical indicators",
-#         "sell": "Agent recommends selling based on negative technical indicators",
-#         "hold": "Agent recommends holding due to neutral market conditions"
-#     }
-    
-#     base = explanations.get(final_action.lower(), "No specific trading recommendation")
-#     rounded_score = round(sentiment_score, 1)
-    
-#     if final_action == "buy":
-#         if rounded_score >= SENTIMENT_THRESHOLD:
-#             return f"{base} and positive market sentiment."
-#         return f"{base} & neutral sentiment."
-#     elif final_action == "sell":
-#         if rounded_score <= -SENTIMENT_THRESHOLD:
-#             return f"{base} due to negative market sentiment."
-#         return f"{base} & neutral sentiment."
-#     return f"{base} & sentiment score."
 def get_recommendation_explanation(final_action: str, sentiment_score: float) -> str:
     """Generate explanation for trading recommendation"""
     explanations = {
-        "buy": "AI recommends buying based on positive technical indicators",
-        "sell": "AI recommends selling based on negative technical indicators",
-        "hold": "AI recommends holding due to neutral market conditions"
+        "buy": "Agent recommends buying based on positive technical indicators",
+        "sell": "Agent recommends selling based on negative technical indicators",
+        "hold": "Agent recommends holding due to neutral market conditions"
     }
     
     base = explanations.get(final_action.lower(), "No specific trading recommendation")
@@ -407,8 +317,6 @@ def get_recommendation_explanation(final_action: str, sentiment_score: float) ->
         sentiment_desc = "neutral market sentiment"
     
     return f"{base} ({sentiment_desc} with score: {rounded_score})"
-
-
 
 # Prediction Route
 @app.route('/predict/<symbol>', methods=['GET'])
@@ -455,7 +363,7 @@ def predict_stock(symbol: str):
         news_list = []
         sentiment_counts = {"positive": 0, "negative": 0, "neutral": 0}
         for article in articles:
-            score = article.get('combined_sentiment', 0)
+            score = float(article.get('sentiment_score', 0))
             if score > 0.05:
                 category = "positive"
             elif score < -0.05:
@@ -468,7 +376,8 @@ def predict_stock(symbol: str):
                 "source": article['source'],
                 "published_at": article['published_at'],
                 "sentiment_score": round(score, 4),
-                "sentiment": category
+                "sentiment": category,
+                "sentiment_source": "marketaux_api"
             })
 
         # Make prediction
@@ -499,7 +408,6 @@ def predict_stock(symbol: str):
         adjusted_high = predicted_high * (1 + adjustment)
         adjusted_low = predicted_low * (1 + adjustment)
 
-      
         # Get DQN trading recommendation
         trading_action = get_dqn_recommendation(
             symbol=symbol,
@@ -509,8 +417,6 @@ def predict_stock(symbol: str):
             predicted_close=adjusted_close,
             sentiment_score=sentiment_score
         )
-        explanation = get_recommendation_explanation(sentiment_score=sentiment_score,
-    final_action=trading_action)
 
         # Prepare historical prices
         historical_prices = [{
