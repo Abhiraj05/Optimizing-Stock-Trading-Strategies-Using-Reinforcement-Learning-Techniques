@@ -10,7 +10,7 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
           <input
             type="text"
             className="bg-gray-700 text-white p-2 rounded-l-lg w-full focus:outline-none pl-4"
-            placeholder="e.g., TCS"
+            placeholder="e.g., IOB"
             value={stockSymbol}
             onChange={(e) => setStockSymbol(e.target.value)}
           />
@@ -61,8 +61,21 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
             </div>
           </div>
 
-          <div>
-            <h4 className="font-semibold mt-4">Sentiment Analysis</h4>
+          {/* NEW: Trading Recommendation */}
+          <div className="mt-6">
+            <h4 className="font-semibold text-lg">Trading Recommendation</h4>
+            <p className="text-green-400 text-lg font-bold capitalize">{predictedData.trading_recommendation}</p>
+            <p className="text-gray-400 text-sm mt-1">
+              {predictedData.recommendation_explanation}
+            </p>
+            {/* <p className="text-gray-400 text-sm mt-1">
+              Strategy Used: <span className="text-white font-semibold">{predictedData.trading_strategy}</span>
+            </p> */}
+          </div>
+
+          {/* Sentiment Analysis */}
+          <div className="mt-6">
+            <h4 className="font-semibold">Sentiment Analysis</h4>
             <p className="text-sm text-gray-400">Score: {predictedData.sentiment_score.toFixed(4)}</p>
             <div className="flex gap-4 mt-2 text-sm">
               <span className="text-green-400">Positive: {predictedData.sentiment_breakdown.positive}</span>
@@ -71,8 +84,9 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
             </div>
           </div>
 
-          <div>
-            <h4 className="font-semibold mt-4 mb-2">Recent News</h4>
+          {/* Recent News */}
+          <div className="mt-6">
+            <h4 className="font-semibold mb-2">Recent News</h4>
             <ul className="space-y-2">
               {predictedData.news.map((article, index) => (
                 <li key={index} className="border-l-4 pl-3 border-gray-600">
@@ -104,5 +118,3 @@ const StockPrediction = ({ stockSymbol, setStockSymbol, predictedData, predictNe
 };
 
 export default StockPrediction;
-
-
