@@ -10,7 +10,7 @@ const StockDetails = ({ stockSymbol, setStockSymbol, currentData, fetchCurrentDa
           <input
             type="text"
             className="bg-gray-700 text-white p-2 rounded-l-lg w-full focus:outline-0 pl-4"
-            placeholder="e.g., RELIANCE"
+            placeholder="e.g., IOB"
             value={stockSymbol}
             onChange={(e) => setStockSymbol(e.target.value)}
            
