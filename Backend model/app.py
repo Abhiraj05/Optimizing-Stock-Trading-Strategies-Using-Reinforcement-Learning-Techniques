@@ -14,6 +14,9 @@ import torch
 import warnings
 from typing import Dict, List, Any, Optional, Union
 
+
+
+
 # Suppress warnings
 warnings.filterwarnings('ignore')
 
@@ -155,9 +158,7 @@ def prepare_features(df: pd.DataFrame) -> pd.DataFrame:
 #         print(f"Error parsing news data: {e}")
 #         return []
 
-from datetime import datetime, timedelta
-import requests
-from typing import List, Dict, Any
+
 
 def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
     """Fetch news articles for the given company within the past 2 days."""
