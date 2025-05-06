@@ -112,11 +112,59 @@ def prepare_features(df: pd.DataFrame) -> pd.DataFrame:
     df.dropna(inplace=True)
     return df
 
-def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
-    """Fetch news articles for the given company"""
-    print(f"Fetching news for {company_name} ({ticker})...")
-    url = f"https://api.marketaux.com/v1/news/all?symbols={ticker}&filter_entities=true&language=en&countries=in&api_token={MARKETAUX_API_KEY}"
+# def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
+#     """Fetch news articles for the given company"""
+#     print(f"Fetching news for {company_name} ({ticker})...")
+#     url = f"https://api.marketaux.com/v1/news/all?symbols={ticker}&filter_entities=true&language=en&countries=in&api_token={MARKETAUX_API_KEY}"
     
+#     trusted_sources = [
+#         'economic times', 'business standard', 'moneycontrol', 'livemint', 
+#         'financial express', 'bloomberg', 'reuters', 'mint', 'ndtv', 
+#         'hindustan times', 'zeebiz', 'cnbc', 'businesstoday', 'rediff.com',
+#         'timesofindia.indiatimes.com', 'economictimes.indiatimes.com',
+#         'thehindubusinessline.com', 'thehindu.com', 'businesstoday.in',
+#         'bloombergquint.com', 'livemint.com', 'telecom.economictimes.indiatimes.com',
+#         'rbi.org.in','inc42.com','seekingalpha.com'
+#     ]
+    
+#     try:
+#         response = requests.get(url, timeout=30)
+#         response.raise_for_status()
+#         data = response.json()
+
+#         if 'data' not in data or not data['data']:
+#             print(f"No articles found for {company_name}.")
+#             return []
+            
+#         articles = []
+#         for article in data['data']:
+#             source = article.get('source', 'Unknown source').lower()
+#             if any(trusted_source in source for trusted_source in trusted_sources):
+#                 articles.append({
+#                     'title': article['title'],
+#                     'source': article.get('source', 'Unknown source'),
+#                     'published_at': article['published_at'],
+#                     'sentiment': float(article.get('sentiment_score', 0))
+#                 })
+#         return articles
+        
+#     except requests.exceptions.RequestException as e:
+#         print(f"Error fetching news: {e}")
+#         return []
+#     except Exception as e:
+#         print(f"Error parsing news data: {e}")
+#         return []
+
+from datetime import datetime, timedelta
+import requests
+from typing import List, Dict, Any
+
+def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
+    """Fetch news articles for the given company within the past 2 days."""
+    print(f"Fetching news for {company_name} ({ticker})...")
+    
+    url = f"https://api.marketaux.com/v1/news/all?symbols={ticker}&filter_entities=true&language=en&countries=in&api_token={MARKETAUX_API_KEY}"
+
     trusted_sources = [
         'economic times', 'business standard', 'moneycontrol', 'livemint', 
         'financial express', 'bloomberg', 'reuters', 'mint', 'ndtv', 
@@ -126,7 +174,7 @@ def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
         'bloombergquint.com', 'livemint.com', 'telecom.economictimes.indiatimes.com',
         'rbi.org.in','inc42.com','seekingalpha.com'
     ]
-    
+
     try:
         response = requests.get(url, timeout=30)
         response.raise_for_status()
@@ -135,25 +183,40 @@ def fetch_bse_news(company_name: str, ticker: str) -> List[Dict[str, Any]]:
         if 'data' not in data or not data['data']:
             print(f"No articles found for {company_name}.")
             return []
-            
+
+        # Time filter: Only include articles from the past 2 days
+        now = datetime.utcnow()
+        two_days_ago = now - timedelta(days=5)
+
         articles = []
         for article in data['data']:
+            published_at_str = article.get('published_at', '')
+            try:
+                published_at = datetime.strptime(published_at_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+            except ValueError:
+                continue  # Skip if date format is unexpected
+
+            if published_at < two_days_ago:
+                continue  # Skip old articles
+
             source = article.get('source', 'Unknown source').lower()
             if any(trusted_source in source for trusted_source in trusted_sources):
                 articles.append({
                     'title': article['title'],
                     'source': article.get('source', 'Unknown source'),
-                    'published_at': article['published_at'],
+                    'published_at': published_at_str,
                     'sentiment': float(article.get('sentiment_score', 0))
                 })
+
         return articles
-        
+
     except requests.exceptions.RequestException as e:
         print(f"Error fetching news: {e}")
         return []
     except Exception as e:
         print(f"Error parsing news data: {e}")
         return []
+
 
 def analyze_sentiment(articles: List[Dict[str, Any]]) -> Dict[str, float]:
     """Analyze sentiment scores for news articles"""
@@ -194,28 +257,52 @@ def analyze_sentiment(articles: List[Dict[str, Any]]) -> Dict[str, float]:
 
     return {'score': total_weighted / total_weight if total_weight > 0 else 0.0}
 
+# def calculate_adjustment(sentiment_score: float, last_close: float, open_price: float) -> float:
+#     """Calculate price adjustment based on sentiment score"""
+#     base_multiplier = 1.3
+#     if sentiment_score > 0.7:
+#         adjustment = 0.06 * base_multiplier
+#     elif sentiment_score > 0.5:
+#         adjustment = 0.04 * base_multiplier
+#     elif sentiment_score > 0.2:
+#         adjustment = 0.02 * base_multiplier
+#     elif sentiment_score < -0.7:
+#         adjustment = -0.07 * base_multiplier
+#     elif sentiment_score < -0.5:
+#         adjustment = -0.05 * base_multiplier
+#     elif sentiment_score < -0.2:
+#         adjustment = -0.03 * base_multiplier
+#     else:
+#         adjustment = 0.0
+        
+#     recent_volatility = max(last_close * 0.01, open_price * 0.01)
+#     return adjustment * (1 - min(recent_volatility, 0.6))
+
 def calculate_adjustment(sentiment_score: float, last_close: float, open_price: float) -> float:
-    """Calculate price adjustment based on sentiment score"""
-    base_multiplier = 1.3
+    """Calculate price adjustment based on sentiment score with more conservative multipliers"""
+    # More conservative base multiplier
+    base_multiplier = 1.0
+    
     if sentiment_score > 0.7:
-        adjustment = 0.06 * base_multiplier
-    elif sentiment_score > 0.5:
         adjustment = 0.04 * base_multiplier
+    elif sentiment_score > 0.5:
+        adjustment = 0.025 * base_multiplier
     elif sentiment_score > 0.2:
-        adjustment = 0.02 * base_multiplier
+        adjustment = 0.015 * base_multiplier
     elif sentiment_score < -0.7:
-        adjustment = -0.07 * base_multiplier
-    elif sentiment_score < -0.5:
         adjustment = -0.05 * base_multiplier
+    elif sentiment_score < -0.5:
+        adjustment = -0.035 * base_multiplier
     elif sentiment_score < -0.2:
-        adjustment = -0.03 * base_multiplier
+        adjustment = -0.02 * base_multiplier
     else:
         adjustment = 0.0
         
+    # Cap the maximum adjustment
+    adjustment = max(min(adjustment, 0.05), -0.05)
+    
     recent_volatility = max(last_close * 0.01, open_price * 0.01)
     return adjustment * (1 - min(recent_volatility, 0.6))
-
-
 
 
 def get_dqn_recommendation(
@@ -279,26 +366,46 @@ def get_dqn_recommendation(
 
 
 
+# def get_recommendation_explanation(final_action: str, sentiment_score: float) -> str:
+#     """Simplified explanation generator"""
+#     explanations = {
+#         "buy": "Agent recommends buying based on positive technical indicators",
+#         "sell": "Agent recommends selling based on negative technical indicators",
+#         "hold": "Agent recommends holding due to neutral market conditions"
+#     }
+    
+#     base = explanations.get(final_action.lower(), "No specific trading recommendation")
+#     rounded_score = round(sentiment_score, 1)
+    
+#     if final_action == "buy":
+#         if rounded_score >= SENTIMENT_THRESHOLD:
+#             return f"{base} and positive market sentiment."
+#         return f"{base} & neutral sentiment."
+#     elif final_action == "sell":
+#         if rounded_score <= -SENTIMENT_THRESHOLD:
+#             return f"{base} due to negative market sentiment."
+#         return f"{base} & neutral sentiment."
+#     return f"{base} & sentiment score."
 def get_recommendation_explanation(final_action: str, sentiment_score: float) -> str:
-    """Simplified explanation generator"""
+    """Generate explanation for trading recommendation"""
     explanations = {
-        "buy": "Agent recommends buying based on positive technical indicators",
-        "sell": "Agent recommends selling based on negative technical indicators",
-        "hold": "Agent recommends holding due to neutral market conditions"
+        "buy": "AI recommends buying based on positive technical indicators",
+        "sell": "AI recommends selling based on negative technical indicators",
+        "hold": "AI recommends holding due to neutral market conditions"
     }
     
     base = explanations.get(final_action.lower(), "No specific trading recommendation")
     rounded_score = round(sentiment_score, 1)
     
-    if final_action == "buy":
-        if rounded_score >= SENTIMENT_THRESHOLD:
-            return f"{base} and positive market sentiment."
-        return f"{base} & neutral sentiment."
-    elif final_action == "sell":
-        if rounded_score <= -SENTIMENT_THRESHOLD:
-            return f"{base} due to negative market sentiment."
-        return f"{base} & neutral sentiment."
-    return f"{base} & sentiment score."
+    sentiment_desc = ""
+    if rounded_score >= SENTIMENT_THRESHOLD:
+        sentiment_desc = "strong positive market sentiment"
+    elif rounded_score <= -SENTIMENT_THRESHOLD:
+        sentiment_desc = "strong negative market sentiment"
+    else:
+        sentiment_desc = "neutral market sentiment"
+    
+    return f"{base} ({sentiment_desc} with score: {rounded_score})"
 
 
 
